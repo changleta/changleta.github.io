@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🎨 畫畫評分遊戲</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&display=swap');
+
+  :root {
+    --bg:      #FFE234;
+    --bg2:     #FFD700;
+    --card:    #FFFBE6;
+    --navy:    #1a2e6b;
+    --navy2:   #2a3f8f;
+    --pink:    #FF4D9E;
+    --red:     #FF3B3B;
+    --orange:  #FF7A00;
+    --green:   #00C96B;
+    --blue:    #0088FF;
+    --purple:  #9B3FFF;
+    --border:  #e8c200;
+    --shadow:  rgba(26,46,107,0.13);
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    font-family: 'Microsoft JhengHei', '微軟正黑體', 'Noto Sans TC', sans-serif;
+    background: var(--bg);
+    background-image:
+      radial-gradient(circle at 10% 15%, #FFF176 0%, transparent 40%),
+      radial-gradient(circle at 90% 85%, #FFD000 0%, transparent 40%),
+      radial-gradient(circle at 50% 50%, #FFE234 0%, transparent 80%);
+    min-height: 100vh;
+    color: var(--navy);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* ── Header ── */
+  header {
+    text-align: center;
+    padding: 28px 16px 10px;
+  }
+  h1 {
+    font-size: clamp(1.8rem, 5.5vw, 2.8rem);
+    font-weight: 900;
+    color: var(--navy);
+    letter-spacing: 0.06em;
+    text-shadow: 3px 3px 0px #FFD000, 0 2px 8px rgba(26,46,107,0.08);
+  }
+  .subtitle {
+    font-size: 0.88rem;
+    color: var(--navy2);
+    margin-top: 6px;
+    letter-spacing: 0.14em;
+    font-weight: 700;
+    opacity: 0.8;
+  }
+
+  /* ── Wrapper ── */
+  .game-wrap {
+    width: 100%;
+    max-width: 900px;
+    padding: 10px 14px 48px;
+    display: flex;
+    flex-direction: column;
+    gap: 13px;
+  }
+
+  /* ── Prompt bar ── */
+  .prompt-bar {
+    background: var(--card);
+    border: 3px solid var(--navy);
+    border-radius: 20px;
+    padding: 13px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 4px 4px 0px var(--navy), 0 2px 12px var(--shadow);
+  }
+  .prompt-label {
+    font-size: 0.68rem;
+    color: var(--navy2);
+    font-weight: 900;
+    letter-spacing: 0.18em;
+    margin-bottom: 2px;
+    opacity: 0.7;
+  }
+  .prompt-word {
+    font-size: clamp(1.3rem, 3.5vw, 1.85rem);
+    font-weight: 900;
+    color: var(--navy);
+  }
+  .btn-new {
+    margin-left: auto;
+    background: var(--navy);
+    color: var(--bg);
+    border: none;
+    border-radius: 13px;
+    padding: 10px 18px;
+    font-family: inherit;
+    font-size: 0.85rem;
+    font-weight: 900;
+    cursor: pointer;
+    white-space: nowrap;
+    box-shadow: 3px 3px 0px var(--navy2);
+    transition: all 0.15s;
+    letter-spacing: 0.05em;
+  }
+  .btn-new:hover { transform: translate(-1px,-1px); box-shadow: 4px 4px 0px var(--navy2); }
+  .btn-new:active { transform: translate(2px,2px); box-shadow: 1px 1px 0px var(--navy2); }
+
+  /* ── Drawing row ── */
+  .drawing-row {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    width: 100%;
+  }
+
+  /* Sidebar */
+  .sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    background: var(--card);
+    border: 3px solid var(--navy);
+    border-radius: 20px;
+    padding: 12px 9px;
+    box-shadow: 4px 4px 0px var(--navy), 0 2px 10px var(--shadow);
+    min-width: 52px;
+    align-items: center;
+  }
+  .sidebar-label {
+    font-size: 0.6rem;
+    color: var(--navy);
+    letter-spacing: 0.08em;
+    font-weight: 900;
+    opacity: 0.6;
+  }
+  .side-divider {
+    width: 30px; height: 2px;
+    background: var(--border);
+    border-radius: 99px;
+    opacity: 0.6;
+  }
+
+  /* Colors */
+  .colors { display: flex; flex-direction: column; gap: 6px; align-items: center; }
+  .color-dot {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    border: 2.5px solid transparent;
+    cursor: pointer;
+    transition: transform 0.15s, border-color 0.15s, box-shadow 0.15s;
+    box-shadow: 2px 2px 0px rgba(26,46,107,0.2);
+  }
+  .color-dot:hover { transform: scale(1.18); }
+  .color-dot.active {
+    border-color: var(--navy);
+    transform: scale(1.22);
+    box-shadow: 2px 2px 0px var(--navy);
+  }
+
+  /* Sizes */
+  .sizes { display: flex; flex-direction: column; gap: 5px; align-items: center; }
+  .size-btn {
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    border: 2.5px solid var(--navy);
+    background: white;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+    box-shadow: 2px 2px 0px rgba(26,46,107,0.15);
+  }
+  .size-btn.active { background: var(--navy); }
+  .size-btn .dot { background: #aaa; border-radius: 50%; }
+  .size-btn.active .dot { background: var(--bg); }
+
+  /* Tool buttons */
+  .tool-btn {
+    width: 34px; height: 34px;
+    border-radius: 10px;
+    border: 2.5px solid var(--navy);
+    background: white;
+    cursor: pointer;
+    font-size: 1rem;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+    box-shadow: 2px 2px 0px rgba(26,46,107,0.15);
+  }
+  .tool-btn:hover { background: var(--bg); }
+  .tool-btn.active { background: var(--navy); }
+
+  /* Canvas */
+  .canvas-col { flex:1; min-width:0; }
+  .canvas-wrapper {
+    border: 3px solid var(--navy);
+    border-radius: 20px;
+    overflow: hidden;
+    background: white;
+    box-shadow: 5px 5px 0px var(--navy), 0 3px 16px var(--shadow);
+  }
+  canvas {
+    display: block;
+    width: 100%;
+    cursor: crosshair;
+    touch-action: none;
+  }
+
+  /* Done column */
+  .done-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .done-hint {
+    font-size: 0.65rem;
+    color: var(--navy);
+    text-align: center;
+    line-height: 1.5;
+    max-width: 48px;
+    opacity: 0;
+    transition: opacity 0.4s;
+    font-weight: 900;
+    letter-spacing: 0.04em;
+  }
+  .done-hint.visible { opacity: 1; animation: blink 2s ease-in-out infinite; }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+  .btn-done {
+    background: var(--pink);
+    color: white;
+    border: 3px solid var(--navy);
+    border-radius: 18px;
+    padding: 16px 13px;
+    font-family: inherit;
+    font-size: 0.95rem;
+    font-weight: 900;
+    cursor: pointer;
+    letter-spacing: 0.2em;
+    writing-mode: vertical-rl;
+    text-orientation: upright;
+    box-shadow: 4px 4px 0px var(--navy);
+    transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1);
+    opacity: 0;
+    pointer-events: none;
+    transform: scale(0.8);
+    min-height: 110px;
+    text-shadow: 1px 1px 0 rgba(0,0,0,0.15);
+  }
+  .btn-done.visible {
+    opacity: 1;
+    pointer-events: auto;
+    transform: scale(1);
+  }
+  .btn-done:hover:not(:disabled) {
+    transform: scale(1.06) translate(-2px,-2px);
+    box-shadow: 6px 6px 0px var(--navy);
+  }
+  .btn-done:active:not(:disabled) { transform: translate(2px,2px); box-shadow: 2px 2px 0px var(--navy); }
+  .btn-done:disabled { opacity:0.4; cursor:not-allowed; transform:scale(1); }
+
+  /* ── Result ── */
+  .result-panel {
+    display: none;
+    background: var(--card);
+    border: 3px solid var(--navy);
+    border-radius: 24px;
+    padding: 26px 22px 22px;
+    box-shadow: 5px 5px 0px var(--navy), 0 4px 20px var(--shadow);
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    animation: popIn 0.42s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  .result-panel.show { display: block; }
+  @keyframes popIn {
+    from { opacity:0; transform:scale(0.88) translateY(10px); }
+    to   { opacity:1; transform:scale(1)    translateY(0); }
+  }
+
+  /* Rainbow top bar */
+  .result-panel::before {
+    content:'';
+    position:absolute; top:0; left:0; right:0; height:6px;
+    background: linear-gradient(90deg, #FF3B3B, #FF7A00, #FFE234, #00C96B, #0088FF, #9B3FFF, #FF4D9E);
+  }
+
+  .loading-label {
+    font-size: 0.92rem; color: var(--navy); font-weight: 900;
+    letter-spacing: 0.1em; padding: 4px 0 14px;
+  }
+  .loading-dots { display:flex; gap:8px; justify-content:center; padding-bottom:18px; }
+  .loading-dots span {
+    width:12px; height:12px; border-radius:50%; border:2px solid var(--navy);
+    animation: bounce 1.1s ease-in-out infinite;
+  }
+  .loading-dots span:nth-child(1){ background:var(--red);    animation-delay:0s; }
+  .loading-dots span:nth-child(2){ background:var(--green);  animation-delay:.2s; }
+  .loading-dots span:nth-child(3){ background:var(--blue);   animation-delay:.4s; }
+  @keyframes bounce { 0%,80%,100%{transform:scale(0.6);opacity:0.4} 40%{transform:scale(1.2);opacity:1} }
+
+  /* Score */
+  .score-wrap {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 6px auto 18px;
+    gap: 6px;
+  }
+  .score-label {
+    font-size: 0.72rem;
+    color: var(--navy);
+    font-weight: 900;
+    letter-spacing: 0.15em;
+    opacity: 0.65;
+  }
+  .score-circle {
+    width: 128px; height: 128px;
+    border-radius: 50%;
+    border: 4px solid var(--navy);
+    box-shadow: 5px 5px 0px var(--navy);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    animation: spinIn 0.55s cubic-bezier(0.34,1.56,0.64,1);
+    background: white;
+  }
+  @keyframes spinIn {
+    from { transform:scale(0) rotate(-90deg); opacity:0; }
+    to   { transform:scale(1) rotate(0deg);   opacity:1; }
+  }
+  .score-num {
+    font-size: 2.8rem;
+    font-weight: 900;
+    line-height: 1;
+    color: var(--navy);
+  }
+  .score-denom {
+    font-size: 0.78rem;
+    color: var(--navy);
+    font-weight: 700;
+    opacity: 0.5;
+    margin-top: 1px;
+  }
+  .score-emoji {
+    font-size: 1.6rem;
+    animation: wobble 0.6s 0.5s ease both;
+  }
+  @keyframes wobble {
+    0%{transform:rotate(-15deg)} 40%{transform:rotate(10deg)} 70%{transform:rotate(-5deg)} 100%{transform:rotate(0)}
+  }
+
+  .comment-bubble {
+    background: white;
+    border: 2.5px solid var(--navy);
+    border-radius: 16px;
+    padding: 14px 18px;
+    font-size: 0.93rem;
+    line-height: 1.85;
+    color: var(--navy);
+    text-align: left;
+    margin-top: 4px;
+    box-shadow: 3px 3px 0px var(--navy);
+  }
+  .comment-bubble::before {
+    content: '✦ AI 評語';
+    display: block;
+    font-size: 0.68rem;
+    color: var(--pink);
+    font-weight: 900;
+    letter-spacing: 0.18em;
+    margin-bottom: 7px;
+  }
+
+  .btn-retry {
+    margin-top: 18px;
+    background: var(--bg);
+    border: 2.5px solid var(--navy);
+    border-radius: 13px;
+    padding: 11px 34px;
+    color: var(--navy);
+    font-family: inherit;
+    font-size: 0.88rem;
+    font-weight: 900;
+    cursor: pointer;
+    letter-spacing: 0.1em;
+    transition: all 0.15s;
+    box-shadow: 3px 3px 0px var(--navy);
+  }
+  .btn-retry:hover { background: var(--navy); color: var(--bg); }
+  .btn-retry:active { transform: translate(2px,2px); box-shadow: 1px 1px 0px var(--navy); }
+
+  /* Responsive */
+  @media (max-width:540px) {
+    .drawing-row { flex-wrap:wrap; }
+    .sidebar { flex-direction:row; min-width:unset; width:100%; border-radius:16px; padding:9px 12px; flex-wrap:wrap; justify-content:center; }
+    .side-divider { width:1.5px; height:26px; }
+    .colors, .sizes { flex-direction:row; }
+    .done-col { flex-direction:row; width:100%; justify-content:center; }
+    .btn-done { writing-mode:horizontal-tb; min-height:unset; padding:12px 32px; letter-spacing:0.28em; font-size:1rem; }
+    .done-hint { max-width:unset; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🎨 畫畫評分遊戲</h1>
+  <div class="subtitle">畫出題目 · 按「完成」· AI 幫你評分 ✨</div>
+</header>
+
+<div class="game-wrap">
+
+  <!-- Prompt -->
+  <div class="prompt-bar">
+    <span style="font-size:1.4rem">🖌️</span>
+    <div>
+      <div class="prompt-label">本題題目</div>
+      <div class="prompt-word" id="promptWord">🏠 房子</div>
+    </div>
+    <button class="btn-new" onclick="newPrompt()">換一題 🎲</button>
+  </div>
+
+  <!-- Drawing row -->
+  <div class="drawing-row">
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="sidebar-label">顏色</div>
+      <div class="colors">
+        <div class="color-dot active" style="background:#111111" data-color="#111111" onclick="setColor(this)"></div>
+        <div class="color-dot" style="background:#FF3B3B" data-color="#FF3B3B" onclick="setColor(this)"></div>
+        <div class="color-dot" style="background:#FF7A00" data-color="#FF7A00" onclick="setColor(this)"></div>
+        <div class="color-dot" style="background:#FFD700" data-color="#FFD700" onclick="setColor(this)" title="黃色"></div>
+        <div class="color-dot" style="background:#00C96B" data-color="#00C96B" onclick="setColor(this)"></div>
+        <div class="color-dot" style="background:#0088FF" data-color="#0088FF" onclick="setColor(this)"></div>
+        <div class="color-dot" style="background:#9B3FFF" data-color="#9B3FFF" onclick="setColor(this)"></div>
+        <div class="color-dot" style="background:#FF4D9E" data-color="#FF4D9E" onclick="setColor(this)"></div>
+        <div class="color-dot" style="background:#FFFFFF; border:2.5px solid #ccc;" data-color="#FFFFFF" onclick="setColor(this)" title="白色"></div>
+      </div>
+
+      <div class="side-divider"></div>
+      <div class="sidebar-label">粗細</div>
+      <div class="sizes">
+        <button class="size-btn" data-size="3"  onclick="setSize(this)"><div class="dot" style="width:3px;height:3px"></div></button>
+        <button class="size-btn active" data-size="7" onclick="setSize(this)"><div class="dot" style="width:7px;height:7px"></div></button>
+        <button class="size-btn" data-size="15" onclick="setSize(this)"><div class="dot" style="width:11px;height:11px"></div></button>
+        <button class="size-btn" data-size="28" onclick="setSize(this)"><div class="dot" style="width:15px;height:15px"></div></button>
+      </div>
+
+      <div class="side-divider"></div>
+      <button class="tool-btn" id="eraserBtn" onclick="toggleEraser()" title="橡皮擦">🧹</button>
+      <button class="tool-btn" onclick="clearCanvas()" title="清空">🗑️</button>
+    </div>
+
+    <!-- Canvas -->
+    <div class="canvas-col">
+      <div class="canvas-wrapper">
+        <canvas id="drawCanvas"></canvas>
+      </div>
+    </div>
+
+    <!-- Done button -->
+    <div class="done-col">
+      <div class="done-hint" id="doneHint">畫完<br>按我！</div>
+      <button class="btn-done" id="doneBtn" onclick="submitDrawing()">完成</button>
+    </div>
+
+  </div>
+
+  <!-- Result -->
+  <div class="result-panel" id="resultPanel">
+    <div id="loadingArea">
+      <div class="loading-label">AI 正在品鑑您的大作 ✨</div>
+      <div class="loading-dots"><span></span><span></span><span></span></div>
+    </div>
+    <div id="resultContent" style="display:none">
+      <div class="score-wrap">
+        <div class="score-label">✦ 綜合評分 ✦</div>
+        <div class="score-circle" id="scoreCircle">
+          <div class="score-num" id="scoreNum">0</div>
+          <div class="score-denom">/ 100</div>
+        </div>
+        <div class="score-emoji" id="scoreEmoji">🎨</div>
+      </div>
+      <div class="comment-bubble" id="commentText"></div>
+      <br>
+      <button class="btn-retry" onclick="retry()">再畫一張 🎨</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const prompts = [
+  {word:"🏠 房子",     en:"a house"},
+  {word:"🐱 貓咪",     en:"a cat"},
+  {word:"🌳 大樹",     en:"a tree"},
+  {word:"🚗 汽車",     en:"a car"},
+  {word:"🌸 花朵",     en:"a flower"},
+  {word:"🐠 金魚",     en:"a goldfish"},
+  {word:"🌙 月亮",     en:"the moon"},
+  {word:"🦋 蝴蝶",     en:"a butterfly"},
+  {word:"🍎 蘋果",     en:"an apple"},
+  {word:"⛰️ 山",      en:"a mountain"},
+  {word:"🎂 蛋糕",     en:"a cake"},
+  {word:"✈️ 飛機",    en:"an airplane"},
+  {word:"🦁 獅子",     en:"a lion"},
+  {word:"🌊 海浪",     en:"ocean waves"},
+  {word:"🐉 龍",       en:"a dragon"},
+  {word:"🏔️ 雪山",    en:"a snowy mountain"},
+  {word:"🍜 麵條",     en:"noodles"},
+  {word:"🦄 獨角獸",   en:"a unicorn"},
+  {word:"🐼 熊貓",     en:"a panda"},
+  {word:"🌈 彩虹",     en:"a rainbow"},
+  {word:"🍓 草莓",     en:"a strawberry"},
+  {word:"🐸 青蛙",     en:"a frog"},
+  {word:"🦩 紅鶴",     en:"a flamingo"},
+  {word:"🎠 旋轉木馬", en:"a carousel"},
+  {word:"🍦 冰淇淋",   en:"an ice cream cone"},
+];
+
+function scoreToEmoji(s) {
+  if (s >= 90) return '🏆';
+  if (s >= 75) return '🌟';
+  if (s >= 60) return '😊';
+  if (s >= 45) return '🌿';
+  if (s >= 30) return '💪';
+  return '🔄';
+}
+
+function scoreToColor(s) {
+  if (s >= 90) return '#FFB800';
+  if (s >= 75) return '#FF4D9E';
+  if (s >= 60) return '#0088FF';
+  if (s >= 45) return '#00C96B';
+  if (s >= 30) return '#FF7A00';
+  return '#9B3FFF';
+}
+
+let currentPrompt = prompts[0];
+let currentColor = "#111111";
+let currentSize = 7;
+let isErasing = false;
+let isDrawing = false;
+let lastX = 0, lastY = 0;
+let hasDrawn = false;
+
+function newPrompt() {
+  currentPrompt = prompts[Math.floor(Math.random() * prompts.length)];
+  document.getElementById('promptWord').textContent = currentPrompt.word;
+  clearCanvas(); hideResult();
+}
+
+const canvas = document.getElementById('drawCanvas');
+const ctx = canvas.getContext('2d');
+
+function resizeCanvas() {
+  const w = canvas.parentElement.clientWidth;
+  const saved = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  canvas.width = w;
+  canvas.height = Math.min(480, Math.max(280, window.innerHeight * 0.46));
+  ctx.fillStyle = 'white';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  try { ctx.putImageData(saved, 0, 0); } catch(e){}
+}
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
+
+function getPos(e) {
+  const r = canvas.getBoundingClientRect();
+  const sx = canvas.width/r.width, sy = canvas.height/r.height;
+  if (e.touches) return [(e.touches[0].clientX-r.left)*sx, (e.touches[0].clientY-r.top)*sy];
+  return [(e.clientX-r.left)*sx, (e.clientY-r.top)*sy];
+}
+
+function startDraw(e) {
+  e.preventDefault(); isDrawing = true;
+  [lastX, lastY] = getPos(e);
+  ctx.beginPath();
+  ctx.arc(lastX, lastY, (isErasing ? currentSize*2.2 : currentSize)/2, 0, Math.PI*2);
+  ctx.fillStyle = isErasing ? 'white' : currentColor;
+  ctx.fill();
+  if (!hasDrawn) { hasDrawn = true; showDoneBtn(); }
+}
+function draw(e) {
+  e.preventDefault(); if (!isDrawing) return;
+  const [x, y] = getPos(e);
+  ctx.beginPath(); ctx.moveTo(lastX, lastY); ctx.lineTo(x, y);
+  ctx.strokeStyle = isErasing ? 'white' : currentColor;
+  ctx.lineWidth = isErasing ? currentSize*2.5 : currentSize;
+  ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.stroke();
+  [lastX, lastY] = [x, y];
+}
+function endDraw(e) { e.preventDefault(); isDrawing = false; }
+
+canvas.addEventListener('mousedown', startDraw);
+canvas.addEventListener('mousemove', draw);
+canvas.addEventListener('mouseup', endDraw);
+canvas.addEventListener('mouseleave', endDraw);
+canvas.addEventListener('touchstart', startDraw);
+canvas.addEventListener('touchmove', draw);
+canvas.addEventListener('touchend', endDraw);
+
+function setColor(el) {
+  isErasing = false;
+  document.getElementById('eraserBtn').classList.remove('active');
+  document.querySelectorAll('.color-dot').forEach(b => b.classList.remove('active'));
+  el.classList.add('active'); currentColor = el.dataset.color;
+}
+function setSize(el) {
+  document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active'); currentSize = parseInt(el.dataset.size);
+}
+function toggleEraser() {
+  isErasing = !isErasing;
+  document.getElementById('eraserBtn').classList.toggle('active', isErasing);
+}
+function clearCanvas() {
+  ctx.fillStyle = 'white'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+  hasDrawn = false; hideDoneBtn();
+}
+function showDoneBtn() {
+  document.getElementById('doneBtn').classList.add('visible');
+  document.getElementById('doneHint').classList.add('visible');
+}
+function hideDoneBtn() {
+  document.getElementById('doneBtn').classList.remove('visible');
+  document.getElementById('doneHint').classList.remove('visible');
+}
+function hideResult() { document.getElementById('resultPanel').classList.remove('show'); }
+
+async function submitDrawing() {
+  const btn = document.getElementById('doneBtn');
+  btn.disabled = true; btn.textContent = '✦';
+
+  const panel = document.getElementById('resultPanel');
+  document.getElementById('loadingArea').style.display = 'block';
+  document.getElementById('resultContent').style.display = 'none';
+  panel.classList.add('show');
+  setTimeout(() => panel.scrollIntoView({ behavior:'smooth', block:'nearest' }), 150);
+
+  const imgData = canvas.toDataURL('image/jpeg', 0.85).split(',')[1];
+  const sys = `你是一個超級可愛幽默的畫畫評分AI，使用繁體中文。用戶畫了「${currentPrompt.word}」（${currentPrompt.en}）。
+請只輸出以下JSON格式，不要任何其他文字：
+{
+  "score": <0到100的整數>,
+  "comment": "<2-4句話的可愛幽默評語，不要直接提分數數字，用繁體中文>"
+}`;
+
+  try {
+    const res = await fetch("https://api.anthropic.com/v1/messages", {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({
+        model:"claude-sonnet-4-20250514",
+        max_tokens:500,
+        system: sys,
+        messages:[{ role:"user", content:[
+          { type:"image", source:{ type:"base64", media_type:"image/jpeg", data: imgData } },
+          { type:"text",  text:`請評分這張「${currentPrompt.word}」的畫，只輸出JSON。` }
+        ]}]
+      })
+    });
+    const data = await res.json();
+    const txt = data.content.map(b => b.text||'').join('');
+    const clean = txt.replace(/```json|```/g,'').trim();
+    showResult(JSON.parse(clean));
+  } catch(err) {
+    console.error(err);
+    showResult({ score: 66, comment:"AI評委去喝珍奶了，暫時無法點評！不過你敢畫敢交，就是今日最勇者！🧋✨" });
+  }
+  btn.disabled = false; btn.textContent = '完成';
+}
+
+function showResult(r) {
+  document.getElementById('loadingArea').style.display = 'none';
+  document.getElementById('resultContent').style.display = 'block';
+
+  const target = Math.min(100, Math.max(0, Math.round(parseFloat(r.score) || 0)));
+  const col = scoreToColor(target);
+
+  const circle = document.getElementById('scoreCircle');
+  circle.style.borderColor = col;
+  circle.style.boxShadow = `5px 5px 0px ${col}`;
+
+  const numEl = document.getElementById('scoreNum');
+  numEl.style.color = col;
+  let n = 0;
+  const step = target / 45;
+  const t = setInterval(() => {
+    n = Math.min(n + step, target);
+    numEl.textContent = Math.round(n);
+    if (n >= target) { numEl.textContent = target; clearInterval(t); }
+  }, 18);
+
+  document.getElementById('scoreEmoji').textContent = scoreToEmoji(target);
+  document.getElementById('commentText').textContent = r.comment;
+}
+
+function retry() { hideResult(); clearCanvas(); newPrompt(); }
+
+resizeCanvas();
+</script>
+</body>
+</html>
