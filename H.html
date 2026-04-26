@@ -1,0 +1,1416 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>台北漢堡地圖 | TAIPEI BURGER MAP</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bangers&family=Cherry+Bomb+One&family=Noto+Sans+TC:wght@400;500;700;900&family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --cream: #FAF3DD;
+    --cream-dark: #F0E4C2;
+    --sky: #5DA9DC;
+    --sky-dark: #3F8AC2;
+    --red: #E84F2A;
+    --red-dark: #C13A1A;
+    --yellow: #FFCB05;
+    --yellow-soft: #FFE066;
+    --teal: #4ECDC4;
+    --green: #7BC74D;
+    --ink: #1A1A1A;
+    --ink-soft: #2D2D2D;
+    --shadow: 4px 4px 0 var(--ink);
+    --shadow-lg: 6px 6px 0 var(--ink);
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Noto Sans TC', sans-serif;
+    background: var(--cream);
+    color: var(--ink);
+    overflow-x: hidden;
+    background-image:
+      radial-gradient(circle at 20% 10%, rgba(232,79,42,.04) 0, transparent 40%),
+      radial-gradient(circle at 80% 90%, rgba(93,169,220,.05) 0, transparent 40%);
+  }
+
+  /* Halftone dot pattern utility */
+  .halftone {
+    background-image: radial-gradient(var(--ink) 1px, transparent 1.5px);
+    background-size: 8px 8px;
+  }
+
+  /* ===== HEADER ===== */
+  header {
+    background: var(--cream);
+    border-bottom: 4px solid var(--ink);
+    padding: 14px 32px;
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 4px 0 var(--ink);
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+  }
+
+  .logo-icon {
+    width: 56px; height: 56px;
+    background: var(--yellow);
+    border: 3px solid var(--ink);
+    border-radius: 50%;
+    display: grid; place-items: center;
+    font-size: 32px;
+    box-shadow: 3px 3px 0 var(--ink);
+    transform: rotate(-5deg);
+  }
+
+  .logo-text h1 {
+    font-family: 'Bangers', cursive;
+    font-size: 26px;
+    color: var(--red);
+    letter-spacing: 2px;
+    line-height: 1;
+    text-shadow: 2px 2px 0 var(--ink);
+  }
+  .logo-text p {
+    font-family: 'Bangers', cursive;
+    font-size: 13px;
+    letter-spacing: 3px;
+    color: var(--ink);
+  }
+
+  nav {
+    display: flex;
+    gap: 8px;
+    flex: 1;
+    justify-content: center;
+  }
+  nav a {
+    text-decoration: none;
+    color: var(--ink);
+    font-weight: 700;
+    padding: 8px 14px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 15px;
+    transition: all .2s;
+    position: relative;
+  }
+  nav a:hover { background: var(--yellow-soft); }
+  nav a.active { color: var(--red); }
+  nav a.active::after {
+    content: ''; position: absolute;
+    bottom: 2px; left: 30%; right: 30%;
+    height: 3px; background: var(--red);
+    border-radius: 2px;
+  }
+  nav a svg { width: 18px; height: 18px; }
+
+  .search-box {
+    display: flex;
+    align-items: center;
+    background: white;
+    border: 3px solid var(--ink);
+    border-radius: 999px;
+    padding: 6px 16px;
+    width: 240px;
+    box-shadow: 3px 3px 0 var(--ink);
+  }
+  .search-box input {
+    border: none; outline: none;
+    flex: 1; font-size: 14px;
+    background: transparent;
+    font-family: inherit;
+  }
+  .search-box svg { width: 18px; height: 18px; }
+
+  /* ===== HERO ===== */
+  .hero {
+    background: var(--sky);
+    position: relative;
+    padding: 50px 32px 70px;
+    overflow: hidden;
+    border-bottom: 4px solid var(--ink);
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background-image:
+      radial-gradient(rgba(255,255,255,.25) 2px, transparent 2.5px);
+    background-size: 24px 24px;
+    pointer-events: none;
+  }
+
+  /* Floating clouds */
+  .cloud {
+    position: absolute;
+    z-index: 1;
+    filter: drop-shadow(2px 2px 0 rgba(0,0,0,.08));
+    pointer-events: none;
+  }
+  .cloud-1 { top: 30px; left: 60px; width: 110px; }
+  .cloud-2 { top: 70px; left: 220px; width: 80px; }
+  .cloud-3 { top: 24px; right: 42%; width: 95px; }
+  @keyframes drift1 { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(12px); } }
+  @keyframes drift2 { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(-10px); } }
+  .cloud-1 { animation: drift1 8s ease-in-out infinite; }
+  .cloud-2 { animation: drift2 10s ease-in-out infinite; }
+  .cloud-3 { animation: drift1 12s ease-in-out infinite; }
+
+  /* Skyline silhouette */
+  .skyline {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 80px;
+    background: var(--ink);
+    -webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1400 80' preserveAspectRatio='none'><path d='M0,80 L0,40 L40,40 L40,20 L80,20 L80,50 L120,50 L120,30 L160,30 L160,55 L200,55 L200,15 L240,15 L240,45 L280,45 L280,35 L320,35 L320,60 L360,60 L360,25 L400,25 L400,50 L440,50 L440,20 L480,20 L480,55 L520,55 L520,30 L560,30 L560,45 L600,45 L600,15 L640,15 L640,40 L680,40 L680,55 L720,55 L720,25 L760,25 L760,50 L800,50 L800,35 L840,35 L840,20 L880,20 L880,55 L920,55 L920,30 L960,30 L960,50 L1000,50 L1000,15 L1040,15 L1040,45 L1080,45 L1080,30 L1120,30 L1120,55 L1160,55 L1160,25 L1200,25 L1200,50 L1240,50 L1240,35 L1280,35 L1280,20 L1320,20 L1320,55 L1360,55 L1360,40 L1400,40 L1400,80 Z'/></svg>");
+    mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1400 80' preserveAspectRatio='none'><path d='M0,80 L0,40 L40,40 L40,20 L80,20 L80,50 L120,50 L120,30 L160,30 L160,55 L200,55 L200,15 L240,15 L240,45 L280,45 L280,35 L320,35 L320,60 L360,60 L360,25 L400,25 L400,50 L440,50 L440,20 L480,20 L480,55 L520,55 L520,30 L560,30 L560,45 L600,45 L600,15 L640,15 L640,40 L680,40 L680,55 L720,55 L720,25 L760,25 L760,50 L800,50 L800,35 L840,35 L840,20 L880,20 L880,55 L920,55 L920,30 L960,30 L960,50 L1000,50 L1000,15 L1040,15 L1040,45 L1080,45 L1080,30 L1120,30 L1120,55 L1160,55 L1160,25 L1200,25 L1200,50 L1240,50 L1240,35 L1280,35 L1280,20 L1320,20 L1320,55 L1360,55 L1360,40 L1400,40 L1400,80 Z'/></svg>");
+    -webkit-mask-size: 100% 100%;
+    mask-size: 100% 100%;
+    opacity: .85;
+    z-index: 1;
+  }
+
+  .hero-grid {
+    position: relative;
+    z-index: 2;
+    max-width: 1400px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    align-items: center;
+  }
+
+  /* Comic boom title */
+  .title-burst {
+    position: relative;
+    padding: 20px 30px;
+  }
+  .title-burst svg.burst-bg {
+    position: absolute;
+    inset: -10px;
+    width: calc(100% + 20px);
+    height: calc(100% + 20px);
+    z-index: 0;
+  }
+
+  .title-main {
+    position: relative;
+    z-index: 1;
+    font-family: 'Cherry Bomb One', cursive;
+    font-size: clamp(56px, 7vw, 110px);
+    line-height: .95;
+    text-align: center;
+    -webkit-text-stroke: 3px var(--ink);
+    text-stroke: 3px var(--ink);
+    filter: drop-shadow(4px 4px 0 var(--ink));
+  }
+  .title-main .line1 { color: var(--yellow); display: block; }
+  .title-main .line2 { color: var(--red); display: block; margin-top: -8px; }
+
+  .title-star {
+    position: absolute;
+    font-size: 32px;
+    z-index: 2;
+    filter: drop-shadow(2px 2px 0 var(--ink));
+  }
+  .title-star.s1 { top: 5%; left: 8%; transform: rotate(-15deg); }
+  .title-star.s2 { top: 8%; right: 12%; transform: rotate(20deg); }
+
+  .ribbon {
+    position: relative;
+    margin: 20px auto 0;
+    width: fit-content;
+    max-width: 90%;
+  }
+  .ribbon-content {
+    background: var(--sky-dark);
+    color: white;
+    border: 3px solid var(--ink);
+    padding: 12px 32px;
+    font-weight: 900;
+    font-size: 17px;
+    box-shadow: 4px 4px 0 var(--ink);
+    position: relative;
+    z-index: 2;
+  }
+  .ribbon-content::before, .ribbon-content::after {
+    content: '★'; color: var(--yellow);
+    margin: 0 8px;
+  }
+
+  .hero-desc {
+    background: rgba(255,255,255,.95);
+    border: 3px solid var(--ink);
+    border-radius: 16px;
+    padding: 20px 28px;
+    margin-top: 24px;
+    text-align: center;
+    box-shadow: var(--shadow-lg);
+  }
+  .hero-desc p {
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 1.7;
+  }
+
+  .hero-cta {
+    display: flex;
+    gap: 14px;
+    justify-content: center;
+    margin-top: 20px;
+  }
+
+  .btn {
+    font-family: inherit;
+    font-weight: 900;
+    font-size: 17px;
+    padding: 13px 26px;
+    border: 3px solid var(--ink);
+    border-radius: 12px;
+    cursor: pointer;
+    box-shadow: var(--shadow);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: transform .15s, box-shadow .15s;
+    text-decoration: none;
+    color: var(--ink);
+  }
+  .btn:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 var(--ink); }
+  .btn:active { transform: translate(2px, 2px); box-shadow: 2px 2px 0 var(--ink); }
+  .btn-red { background: var(--red); color: white; }
+  .btn-yellow { background: var(--yellow); }
+  .btn-blue { background: var(--sky-dark); color: white; }
+  .btn-white { background: white; }
+
+  /* Hero map illustration */
+  .hero-map {
+    position: relative;
+    background: #F4E5BB;
+    border: 4px solid var(--ink);
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: var(--shadow-lg);
+    aspect-ratio: 4/3;
+    overflow: hidden;
+  }
+  .hero-map svg { width: 100%; height: 100%; }
+
+  /* ===== FILTERS SECTION ===== */
+  .filters-section {
+    padding: 60px 32px;
+    background: var(--cream);
+    position: relative;
+  }
+
+  .section-header {
+    max-width: 1400px;
+    margin: 0 auto 30px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .section-title {
+    font-family: 'Cherry Bomb One', cursive;
+    font-size: 36px;
+    color: var(--ink);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .section-title .accent {
+    color: var(--red);
+    font-size: 28px;
+  }
+
+  .section-divider {
+    flex: 1; height: 4px;
+    background: repeating-linear-gradient(90deg, var(--ink) 0 12px, transparent 12px 20px);
+  }
+
+  .filters-grid {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+  }
+
+  .filter-card {
+    background: white;
+    border: 4px solid var(--ink);
+    border-radius: 20px;
+    padding: 28px;
+    box-shadow: var(--shadow-lg);
+    position: relative;
+  }
+
+  .filter-card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .filter-card-header h3 {
+    font-family: 'Cherry Bomb One', cursive;
+    font-size: 24px;
+  }
+  .filter-card-header .badge {
+    background: var(--yellow);
+    border: 3px solid var(--ink);
+    border-radius: 999px;
+    padding: 4px 14px;
+    font-weight: 900;
+    font-size: 13px;
+    box-shadow: 2px 2px 0 var(--ink);
+  }
+
+  .region-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+  }
+  .region-pill {
+    border: 3px solid var(--ink);
+    background: white;
+    padding: 10px 8px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 900;
+    font-size: 15px;
+    text-align: center;
+    transition: all .15s;
+    box-shadow: 2px 2px 0 var(--ink);
+    font-family: inherit;
+  }
+  .region-pill:hover { background: var(--yellow-soft); transform: translate(-1px, -1px); box-shadow: 3px 3px 0 var(--ink); }
+  .region-pill.active {
+    background: var(--red); color: white;
+    transform: translate(1px, 1px);
+    box-shadow: 1px 1px 0 var(--ink);
+  }
+
+  .type-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+  .type-card {
+    background: var(--cream);
+    border: 3px solid var(--ink);
+    border-radius: 14px;
+    padding: 14px 8px;
+    text-align: center;
+    cursor: pointer;
+    transition: all .15s;
+    box-shadow: 2px 2px 0 var(--ink);
+    font-family: inherit;
+  }
+  .type-card:hover {
+    transform: translate(-1px, -1px);
+    box-shadow: 3px 3px 0 var(--ink);
+  }
+  .type-card.active {
+    background: var(--yellow);
+    transform: translate(1px, 1px);
+    box-shadow: 1px 1px 0 var(--ink);
+  }
+  .type-icon {
+    width: 50px; height: 50px;
+    background: white;
+    border: 3px solid var(--ink);
+    border-radius: 50%;
+    display: grid; place-items: center;
+    margin: 0 auto 8px;
+    font-size: 24px;
+  }
+  .type-card.active .type-icon { background: white; }
+  .type-name {
+    font-weight: 900;
+    font-size: 14px;
+  }
+
+  /* ===== MAP SECTION ===== */
+  .map-section {
+    padding: 60px 32px;
+    background: var(--sky);
+    position: relative;
+    border-top: 4px solid var(--ink);
+    border-bottom: 4px solid var(--ink);
+  }
+  .map-section::before {
+    content: '';
+    position: absolute; inset: 0;
+    background-image: radial-gradient(rgba(255,255,255,.18) 2px, transparent 2.5px);
+    background-size: 26px 26px;
+    pointer-events: none;
+  }
+
+  .map-section .section-title { color: white; text-shadow: 3px 3px 0 var(--ink); }
+  .map-section .section-divider { background: repeating-linear-gradient(90deg, white 0 12px, transparent 12px 20px); }
+
+  .map-wrapper {
+    max-width: 1400px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 2;
+  }
+
+  .map-container {
+    background: white;
+    border: 5px solid var(--ink);
+    border-radius: 20px;
+    padding: 14px;
+    box-shadow: 8px 8px 0 var(--ink);
+    position: relative;
+  }
+
+  .map-info-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 14px;
+    padding: 8px 14px;
+  }
+  .map-current-filter {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .filter-tag {
+    background: var(--yellow);
+    border: 2.5px solid var(--ink);
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-weight: 900;
+    font-size: 13px;
+    box-shadow: 2px 2px 0 var(--ink);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .filter-tag.tag-red { background: var(--red); color: white; }
+  .filter-tag .x {
+    cursor: pointer;
+    width: 18px; height: 18px;
+    background: rgba(0,0,0,.15);
+    border-radius: 50%;
+    display: grid; place-items: center;
+    font-size: 11px;
+    line-height: 1;
+  }
+  .map-count {
+    font-weight: 900;
+    font-size: 14px;
+    color: var(--ink);
+  }
+  .map-count strong { color: var(--red); font-size: 18px; }
+
+  .map-iframe-wrapper {
+    border: 3px solid var(--ink);
+    border-radius: 12px;
+    overflow: hidden;
+    aspect-ratio: 16/8;
+    background: #e5e3df;
+  }
+  .map-iframe-wrapper iframe {
+    width: 100%; height: 100%;
+    border: 0; display: block;
+  }
+
+  /* ===== RESTAURANTS LIST ===== */
+  .restaurants-section {
+    padding: 60px 32px;
+    background: var(--cream);
+  }
+
+  .restaurants-grid {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 22px;
+  }
+
+  .restaurant-card {
+    background: white;
+    border: 4px solid var(--ink);
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: var(--shadow-lg);
+    transition: transform .2s, box-shadow .2s;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+  }
+  .restaurant-card:hover {
+    transform: translate(-3px, -3px);
+    box-shadow: 9px 9px 0 var(--ink);
+  }
+
+  .card-img {
+    height: 180px;
+    background: linear-gradient(135deg, var(--yellow-soft), var(--yellow));
+    border-bottom: 4px solid var(--ink);
+    position: relative;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+  }
+  .card-img::after {
+    content: '';
+    position: absolute; inset: 0;
+    background-image: radial-gradient(rgba(0,0,0,.06) 1.5px, transparent 2px);
+    background-size: 12px 12px;
+  }
+  .card-img .burger-emoji {
+    font-size: 92px;
+    filter: drop-shadow(3px 3px 0 var(--ink));
+    z-index: 1;
+    transition: transform .3s;
+  }
+  .restaurant-card:hover .burger-emoji { transform: scale(1.1) rotate(-5deg); }
+
+  .card-tag {
+    position: absolute;
+    top: 12px; left: 12px;
+    background: var(--red);
+    color: white;
+    border: 2.5px solid var(--ink);
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-weight: 900;
+    font-size: 12px;
+    z-index: 2;
+    box-shadow: 2px 2px 0 var(--ink);
+  }
+  .card-fav {
+    position: absolute;
+    top: 12px; right: 12px;
+    width: 36px; height: 36px;
+    background: white;
+    border: 2.5px solid var(--ink);
+    border-radius: 50%;
+    display: grid; place-items: center;
+    cursor: pointer;
+    font-size: 18px;
+    z-index: 2;
+    box-shadow: 2px 2px 0 var(--ink);
+    transition: all .15s;
+  }
+  .card-fav:hover { background: var(--yellow-soft); }
+  .card-fav.fav-active { background: var(--red); color: white; }
+
+  .card-body {
+    padding: 18px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  .card-name {
+    font-family: 'Cherry Bomb One', cursive;
+    font-size: 20px;
+    margin-bottom: 8px;
+    color: var(--ink);
+  }
+  .card-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  .card-district {
+    background: var(--cream-dark);
+    border: 2px solid var(--ink);
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+  }
+  .card-rating {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-weight: 900;
+    color: var(--ink);
+  }
+  .card-rating .star { color: var(--yellow); filter: drop-shadow(1px 1px 0 var(--ink)); }
+  .card-desc {
+    font-size: 13px;
+    color: var(--ink-soft);
+    line-height: 1.5;
+    margin-bottom: 12px;
+    flex: 1;
+  }
+  .card-action {
+    display: flex;
+    gap: 6px;
+    margin-top: auto;
+  }
+  .card-btn {
+    flex: 1;
+    background: var(--cream);
+    border: 2.5px solid var(--ink);
+    padding: 8px;
+    border-radius: 8px;
+    font-weight: 900;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all .15s;
+    box-shadow: 2px 2px 0 var(--ink);
+    font-family: inherit;
+  }
+  .card-btn:hover { background: var(--yellow-soft); }
+  .card-btn-primary { background: var(--red); color: white; }
+  .card-btn-primary:hover { background: var(--red-dark); }
+
+  .empty-state {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 60px 20px;
+    background: white;
+    border: 4px dashed var(--ink);
+    border-radius: 20px;
+  }
+  .empty-state h3 { font-family: 'Cherry Bomb One', cursive; font-size: 28px; margin-bottom: 10px; }
+  .empty-state p { color: var(--ink-soft); margin-bottom: 20px; }
+
+  /* ===== REVIEWS SECTION ===== */
+  .reviews-section {
+    padding: 60px 32px;
+    background: var(--cream-dark);
+    position: relative;
+    border-top: 4px solid var(--ink);
+  }
+  .reviews-section .halftone {
+    position: absolute; inset: 0;
+    opacity: .04;
+    pointer-events: none;
+  }
+
+  .reviews-track {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+  }
+
+  .review-card {
+    background: white;
+    border: 4px solid var(--ink);
+    border-radius: 16px;
+    padding: 22px;
+    box-shadow: var(--shadow-lg);
+    position: relative;
+    transition: transform .2s, box-shadow .2s;
+  }
+  .review-card:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 8px 8px 0 var(--ink);
+  }
+  .review-card::before {
+    content: '"';
+    position: absolute;
+    top: -10px; right: 16px;
+    font-family: serif;
+    font-size: 80px;
+    color: var(--red);
+    line-height: 1;
+    -webkit-text-stroke: 2px var(--ink);
+  }
+
+  .review-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  .review-avatar {
+    width: 48px; height: 48px;
+    border: 3px solid var(--ink);
+    border-radius: 50%;
+    display: grid; place-items: center;
+    font-size: 22px;
+    font-weight: 900;
+    box-shadow: 2px 2px 0 var(--ink);
+    flex-shrink: 0;
+  }
+  .review-author {
+    font-weight: 900;
+    font-size: 16px;
+  }
+  .review-restaurant {
+    font-size: 12px;
+    color: var(--red);
+    font-weight: 700;
+  }
+  .review-stars {
+    margin: 8px 0;
+    color: var(--yellow);
+    font-size: 18px;
+    filter: drop-shadow(1px 1px 0 var(--ink));
+    letter-spacing: 1px;
+  }
+  .review-text {
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--ink-soft);
+  }
+  .review-date {
+    margin-top: 12px;
+    font-size: 11px;
+    color: #888;
+    font-weight: 700;
+  }
+
+  /* ===== FOOTER ===== */
+  footer {
+    background: var(--ink);
+    color: var(--cream);
+    padding: 50px 32px 20px;
+    border-top: 4px solid var(--ink);
+  }
+  .footer-grid {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 40px;
+    margin-bottom: 30px;
+  }
+  .footer-brand h3 {
+    font-family: 'Bangers', cursive;
+    font-size: 30px;
+    color: var(--yellow);
+    letter-spacing: 2px;
+    margin-bottom: 10px;
+  }
+  .footer-brand p {
+    font-size: 14px;
+    line-height: 1.6;
+    opacity: .8;
+    max-width: 380px;
+  }
+  .footer-col h4 {
+    font-family: 'Cherry Bomb One', cursive;
+    font-size: 18px;
+    color: var(--yellow);
+    margin-bottom: 12px;
+  }
+  .footer-col a {
+    display: block;
+    color: var(--cream);
+    text-decoration: none;
+    padding: 4px 0;
+    font-size: 14px;
+    opacity: .8;
+    transition: opacity .15s;
+  }
+  .footer-col a:hover { opacity: 1; color: var(--yellow); }
+  .footer-bottom {
+    border-top: 2px dashed rgba(250,243,221,.2);
+    padding-top: 20px;
+    text-align: center;
+    font-size: 13px;
+    opacity: .6;
+  }
+
+  /* Animation */
+  @keyframes float {
+    0%, 100% { transform: translateY(0) rotate(-5deg); }
+    50% { transform: translateY(-8px) rotate(-5deg); }
+  }
+  .logo-icon { animation: float 3s ease-in-out infinite; }
+
+  @keyframes wiggle {
+    0%, 100% { transform: rotate(-15deg); }
+    50% { transform: rotate(-25deg); }
+  }
+  .title-star.s1 { animation: wiggle 2s ease-in-out infinite; }
+
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+  }
+
+  /* Responsive */
+  @media (max-width: 900px) {
+    header { padding: 12px 16px; gap: 12px; flex-wrap: wrap; }
+    .search-box { width: 100%; order: 4; }
+    nav { order: 3; flex-wrap: wrap; gap: 4px; }
+    nav a { padding: 6px 10px; font-size: 13px; }
+    .hero { padding: 40px 16px 60px; }
+    .hero-grid { grid-template-columns: 1fr; gap: 24px; }
+    .filters-section, .map-section, .restaurants-section, .reviews-section { padding: 40px 16px; }
+    .filters-grid { grid-template-columns: 1fr; gap: 20px; }
+    .region-grid { grid-template-columns: repeat(3, 1fr); }
+    .type-grid { grid-template-columns: repeat(2, 1fr); }
+    .footer-grid { grid-template-columns: 1fr 1fr; gap: 24px; }
+    .section-title { font-size: 26px; }
+    .title-main { font-size: 64px; }
+  }
+  @media (max-width: 500px) {
+    .region-grid { grid-template-columns: repeat(2, 1fr); }
+    .footer-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== HEADER ===== -->
+<header>
+  <div class="logo">
+    <div class="logo-icon">🍔</div>
+    <div class="logo-text">
+      <h1>TAIPEI</h1>
+      <p>BURGER MAP</p>
+    </div>
+  </div>
+  <nav>
+    <a href="#home" class="active">🏠 首頁</a>
+    <a href="#map">📍 漢堡地圖</a>
+    <a href="#restaurants">🏪 漢堡店家</a>
+    <a href="#reviews">❤️ 我的最愛</a>
+    <a href="#about">ℹ️ 關於我們</a>
+  </nav>
+  <div class="search-box">
+    <input type="text" placeholder="搜尋漢堡店..." id="searchInput">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+  </div>
+</header>
+
+<!-- ===== HERO ===== -->
+<section class="hero" id="home">
+  <!-- Proper SVG clouds -->
+  <svg class="cloud cloud-1" viewBox="0 0 120 50" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <path d="M20 38 C8 38 4 28 12 22 C8 12 22 8 28 14 C32 6 48 8 50 18 C58 14 70 18 70 28 C82 26 86 38 76 42 C72 46 24 46 20 38 Z"
+          fill="white" stroke="#1A1A1A" stroke-width="3" stroke-linejoin="round"/>
+  </svg>
+  <svg class="cloud cloud-2" viewBox="0 0 90 40" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <path d="M16 30 C6 30 4 22 10 18 C8 10 18 6 24 12 C28 4 42 6 44 14 C52 12 60 18 56 26 C58 32 22 34 16 30 Z"
+          fill="white" stroke="#1A1A1A" stroke-width="3" stroke-linejoin="round"/>
+  </svg>
+  <svg class="cloud cloud-3" viewBox="0 0 100 42" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <path d="M18 32 C8 32 4 24 10 20 C8 10 22 8 28 14 C32 6 48 8 50 18 C60 14 70 22 64 30 C66 36 24 36 18 32 Z"
+          fill="white" stroke="#1A1A1A" stroke-width="3" stroke-linejoin="round"/>
+  </svg>
+  <div class="skyline"></div>
+
+  <div class="hero-grid">
+    <div class="hero-left">
+      <div class="title-burst">
+        <svg class="burst-bg" viewBox="0 0 500 360" preserveAspectRatio="none">
+          <path d="M250 10 L290 50 L350 30 L355 90 L420 90 L390 140 L460 170 L390 200 L420 250 L350 250 L355 310 L290 290 L250 340 L210 290 L150 310 L145 250 L80 250 L110 200 L40 170 L110 140 L80 90 L150 90 L145 30 L210 50 Z"
+                fill="white" stroke="#1A1A1A" stroke-width="4" stroke-linejoin="round"/>
+        </svg>
+        <span class="title-star s1">⭐</span>
+        <span class="title-star s2">⭐</span>
+        <h2 class="title-main">
+          <span class="line1">台北</span>
+          <span class="line2">漢堡地圖</span>
+        </h2>
+      </div>
+
+      <div class="ribbon">
+        <div class="ribbon-content">一起探索台北最好吃的漢堡！</div>
+      </div>
+
+      <div class="hero-desc">
+        <p>收錄台北各地美味漢堡店<br>帶你一起咬遍台北的幸福好滋味！</p>
+      </div>
+
+      <div class="hero-cta">
+        <a href="#map" class="btn btn-red">📍 探索地圖</a>
+        <a href="#restaurants" class="btn btn-yellow">🍔 瀏覽店家</a>
+      </div>
+    </div>
+
+    <!-- Stylized hero map illustration -->
+    <div class="hero-map">
+      <svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+        <!-- Roads -->
+        <path d="M0 80 Q200 60 400 100" stroke="white" stroke-width="6" fill="none"/>
+        <path d="M0 200 Q200 220 400 180" stroke="white" stroke-width="6" fill="none"/>
+        <path d="M120 0 L140 300" stroke="white" stroke-width="5" fill="none"/>
+        <path d="M280 0 L260 300" stroke="white" stroke-width="5" fill="none"/>
+        <!-- River -->
+        <path d="M70 0 Q90 100 60 200 T80 300" stroke="#5DA9DC" stroke-width="14" fill="none" stroke-linecap="round"/>
+        <!-- Trees -->
+        <circle cx="180" cy="50" r="10" fill="#7BC74D" stroke="#1A1A1A" stroke-width="2"/>
+        <circle cx="340" cy="60" r="8" fill="#7BC74D" stroke="#1A1A1A" stroke-width="2"/>
+        <circle cx="160" cy="270" r="9" fill="#7BC74D" stroke="#1A1A1A" stroke-width="2"/>
+        <circle cx="320" cy="260" r="11" fill="#7BC74D" stroke="#1A1A1A" stroke-width="2"/>
+        <!-- 101 building -->
+        <rect x="240" y="100" width="22" height="120" fill="#4ECDC4" stroke="#1A1A1A" stroke-width="2.5"/>
+        <polygon points="240,100 251,80 262,100" fill="#4ECDC4" stroke="#1A1A1A" stroke-width="2.5"/>
+        <!-- Pins for districts -->
+        <g class="map-pin" transform="translate(110,40)">
+          <path d="M0 0 C-12 0 -20 8 -20 20 C-20 32 0 50 0 50 C0 50 20 32 20 20 C20 8 12 0 0 0 Z" fill="#E84F2A" stroke="#1A1A1A" stroke-width="2.5"/>
+          <circle cx="0" cy="20" r="11" fill="#FFCB05" stroke="#1A1A1A" stroke-width="2"/>
+          <text x="0" y="24" text-anchor="middle" font-size="12">🍔</text>
+        </g>
+        <text x="110" y="25" text-anchor="middle" font-weight="900" font-size="13" fill="#1A1A1A">士林</text>
+
+        <g transform="translate(200,90)">
+          <path d="M0 0 C-12 0 -20 8 -20 20 C-20 32 0 50 0 50 C0 50 20 32 20 20 C20 8 12 0 0 0 Z" fill="#E84F2A" stroke="#1A1A1A" stroke-width="2.5"/>
+          <circle cx="0" cy="20" r="11" fill="#FFCB05" stroke="#1A1A1A" stroke-width="2"/>
+          <text x="0" y="24" text-anchor="middle" font-size="12">🍔</text>
+        </g>
+        <text x="200" y="78" text-anchor="middle" font-weight="900" font-size="13" fill="#1A1A1A">中山</text>
+
+        <g transform="translate(310,130)">
+          <path d="M0 0 C-12 0 -20 8 -20 20 C-20 32 0 50 0 50 C0 50 20 32 20 20 C20 8 12 0 0 0 Z" fill="#E84F2A" stroke="#1A1A1A" stroke-width="2.5"/>
+          <circle cx="0" cy="20" r="11" fill="#FFCB05" stroke="#1A1A1A" stroke-width="2"/>
+          <text x="0" y="24" text-anchor="middle" font-size="12">🍔</text>
+        </g>
+        <text x="310" y="120" text-anchor="middle" font-weight="900" font-size="13" fill="#1A1A1A">內湖</text>
+
+        <g transform="translate(150,200)">
+          <path d="M0 0 C-12 0 -20 8 -20 20 C-20 32 0 50 0 50 C0 50 20 32 20 20 C20 8 12 0 0 0 Z" fill="#E84F2A" stroke="#1A1A1A" stroke-width="2.5"/>
+          <circle cx="0" cy="20" r="11" fill="#FFCB05" stroke="#1A1A1A" stroke-width="2"/>
+          <text x="0" y="24" text-anchor="middle" font-size="12">🍔</text>
+        </g>
+        <text x="150" y="190" text-anchor="middle" font-weight="900" font-size="13" fill="#1A1A1A">中正</text>
+
+        <g transform="translate(260,200)">
+          <path d="M0 0 C-12 0 -20 8 -20 20 C-20 32 0 50 0 50 C0 50 20 32 20 20 C20 8 12 0 0 0 Z" fill="#E84F2A" stroke="#1A1A1A" stroke-width="2.5"/>
+          <circle cx="0" cy="20" r="11" fill="#FFCB05" stroke="#1A1A1A" stroke-width="2"/>
+          <text x="0" y="24" text-anchor="middle" font-size="12">🍔</text>
+        </g>
+        <text x="260" y="190" text-anchor="middle" font-weight="900" font-size="13" fill="#1A1A1A">大安</text>
+
+        <g transform="translate(340,220)">
+          <path d="M0 0 C-12 0 -20 8 -20 20 C-20 32 0 50 0 50 C0 50 20 32 20 20 C20 8 12 0 0 0 Z" fill="#E84F2A" stroke="#1A1A1A" stroke-width="2.5"/>
+          <circle cx="0" cy="20" r="11" fill="#FFCB05" stroke="#1A1A1A" stroke-width="2"/>
+          <text x="0" y="24" text-anchor="middle" font-size="12">🍔</text>
+        </g>
+        <text x="340" y="210" text-anchor="middle" font-weight="900" font-size="13" fill="#1A1A1A">信義</text>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FILTERS ===== -->
+<section class="filters-section" id="filters">
+  <div class="section-header">
+    <h2 class="section-title"><span class="accent">⚡</span> 漢堡分類篩選</h2>
+    <div class="section-divider"></div>
+    <button class="btn btn-white" onclick="resetFilters()">🔄 重設篩選</button>
+  </div>
+
+  <div class="filters-grid">
+    <!-- Region selector -->
+    <div class="filter-card">
+      <div class="filter-card-header">
+        <h3>📍 選擇地區</h3>
+        <span class="badge">12 區</span>
+      </div>
+      <div class="region-grid" id="regionGrid">
+        <!-- regions injected by JS -->
+      </div>
+    </div>
+
+    <!-- Burger type selector -->
+    <div class="filter-card">
+      <div class="filter-card-header">
+        <h3>🍔 漢堡類型</h3>
+        <span class="badge">6 類</span>
+      </div>
+      <div class="type-grid" id="typeGrid">
+        <!-- types injected by JS -->
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== GOOGLE MAP ===== -->
+<section class="map-section" id="map">
+  <div class="section-header">
+    <h2 class="section-title">🗺️ 漢堡地圖</h2>
+    <div class="section-divider"></div>
+  </div>
+
+  <div class="map-wrapper">
+    <div class="map-container">
+      <div class="map-info-bar">
+        <div class="map-current-filter" id="currentFilters">
+          <span class="filter-tag">📍 全台北</span>
+          <span class="filter-tag tag-red">🍔 全部漢堡</span>
+        </div>
+        <div class="map-count">
+          找到 <strong id="resultCount">10</strong> 間漢堡店
+        </div>
+      </div>
+      <div class="map-iframe-wrapper">
+        <iframe id="mapFrame" src="" allowfullscreen loading="lazy"></iframe>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== RESTAURANTS LIST ===== -->
+<section class="restaurants-section" id="restaurants">
+  <div class="section-header">
+    <h2 class="section-title"><span class="accent">⭐</span> 熱門推薦店家</h2>
+    <div class="section-divider"></div>
+  </div>
+
+  <div class="restaurants-grid" id="restaurantsGrid">
+    <!-- restaurants injected by JS -->
+  </div>
+</section>
+
+<!-- ===== REVIEWS ===== -->
+<section class="reviews-section" id="reviews">
+  <div class="halftone"></div>
+  <div class="section-header">
+    <h2 class="section-title"><span class="accent">💬</span> 食客評論</h2>
+    <div class="section-divider"></div>
+  </div>
+
+  <div class="reviews-track" id="reviewsTrack">
+    <!-- reviews injected by JS -->
+  </div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer id="about">
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <h3>🍔 TAIPEI BURGER MAP</h3>
+      <p>專為熱愛漢堡的你打造！收錄台北各區精選漢堡店家，從經典美式到創意素食，讓你輕鬆找到下一頓的最愛漢堡。</p>
+    </div>
+    <div class="footer-col">
+      <h4>探索</h4>
+      <a href="#map">漢堡地圖</a>
+      <a href="#restaurants">熱門店家</a>
+      <a href="#filters">分類篩選</a>
+      <a href="#reviews">食客評論</a>
+    </div>
+    <div class="footer-col">
+      <h4>分類</h4>
+      <a href="#filters">經典美式</a>
+      <a href="#filters">起司控</a>
+      <a href="#filters">雞肉漢堡</a>
+      <a href="#filters">素食漢堡</a>
+    </div>
+    <div class="footer-col">
+      <h4>聯絡</h4>
+      <a href="#">聯絡我們</a>
+      <a href="#">推薦店家</a>
+      <a href="#">合作提案</a>
+      <a href="#">隱私政策</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    © 2026 Taipei Burger Map · Made with 🍔 in Taipei
+  </div>
+</footer>
+
+<script>
+  // ====== DATA ======
+  const regions = [
+    { id: 'all', name: '全部地區', query: '台北' },
+    { id: 'shilin', name: '士林區', query: '台北市士林區' },
+    { id: 'beitou', name: '北投區', query: '台北市北投區' },
+    { id: 'datong', name: '大同區', query: '台北市大同區' },
+    { id: 'zhongshan', name: '中山區', query: '台北市中山區' },
+    { id: 'songshan', name: '松山區', query: '台北市松山區' },
+    { id: 'neihu', name: '內湖區', query: '台北市內湖區' },
+    { id: 'nangang', name: '南港區', query: '台北市南港區' },
+    { id: 'wanhua', name: '萬華區', query: '台北市萬華區' },
+    { id: 'zhongzheng', name: '中正區', query: '台北市中正區' },
+    { id: 'daan', name: '大安區', query: '台北市大安區' },
+    { id: 'xinyi', name: '信義區', query: '台北市信義區' },
+    { id: 'wenshan', name: '文山區', query: '台北市文山區' },
+  ];
+
+  const burgerTypes = [
+    { id: 'all', name: '全部類型', icon: '🍔' },
+    { id: 'classic', name: '經典美式', icon: '🍔' },
+    { id: 'cheese', name: '起司控', icon: '🧀' },
+    { id: 'chicken', name: '雞肉漢堡', icon: '🍗' },
+    { id: 'veggie', name: '素食漢堡', icon: '🥬' },
+    { id: 'brunch', name: '早午餐推薦', icon: '🍳' },
+    { id: 'popular', name: '人氣排行', icon: '⭐' },
+  ];
+
+  const restaurants = [
+    { id: 1, name: '樂子 the Diner', district: '大安區', regionId: 'daan', rating: 4.7, type: 'classic', icon: '🍔', desc: '正宗美式漢堡與道地早午餐，份量超大讓人滿足。', tag: '熱門', address: '台北市大安區仁愛路四段' },
+    { id: 2, name: '貳樓餐廳 Second Floor', district: '中山區', regionId: 'zhongshan', rating: 4.5, type: 'brunch', icon: '🥯', desc: '獨特早午餐與創意漢堡，氣氛超棒適合聚會。', tag: '早午餐', address: '台北市中山區敦化北路' },
+    { id: 3, name: 'BRUN 不然', district: '信義區', regionId: 'xinyi', rating: 4.6, type: 'cheese', icon: '🧀', desc: '濃郁起司搭配厚實牛肉，每一口都是滿滿的爆漿享受。', tag: '起司爆漿', address: '台北市信義區松壽路' },
+    { id: 4, name: '路易莎漢堡', district: '中正區', regionId: 'zhongzheng', rating: 4.4, type: 'classic', icon: '🍔', desc: '平價美味的經典漢堡，CP 值超高的學生最愛。', tag: '平價', address: '台北市中正區忠孝西路' },
+    { id: 5, name: 'Burger Talks 淡水漢堡', district: '士林區', regionId: 'shilin', rating: 4.5, type: 'classic', icon: '🍔', desc: '隱身巷弄的人氣店，手工漢堡排紮實多汁。', tag: '隱藏版', address: '台北市士林區中正路' },
+    { id: 6, name: 'KGB 紐西蘭風味漢堡', district: '大安區', regionId: 'daan', rating: 4.6, type: 'classic', icon: '🥬', desc: '紐西蘭創意漢堡，奇異果與羊肉的特殊組合。', tag: '異國風', address: '台北市大安區師大路' },
+    { id: 7, name: 'Stan & Cat 史丹貓', district: '信義區', regionId: 'xinyi', rating: 4.5, type: 'cheese', icon: '🧀', desc: '紐約風味漢堡，自製麵包香氣十足。', tag: '紐約風', address: '台北市信義區永吉路' },
+    { id: 8, name: 'Burger Ray 個性漢堡', district: '北投區', regionId: 'beitou', rating: 4.4, type: 'classic', icon: '🍔', desc: '可自由選擇配料的個性化漢堡店。', tag: '客製化', address: '台北市北投區光明路' },
+    { id: 9, name: 'Smith & Hsu 雞肉堡專門', district: '松山區', regionId: 'songshan', rating: 4.5, type: 'chicken', icon: '🍗', desc: '酥脆多汁的雞腿堡，搭配特調醬料超對味。', tag: '雞肉控', address: '台北市松山區八德路' },
+    { id: 10, name: 'Hashtag Burger', district: '內湖區', regionId: 'neihu', rating: 4.3, type: 'veggie', icon: '🥗', desc: '主打植物肉的健康素食漢堡，環保又美味。', tag: '健康', address: '台北市內湖區瑞光路' },
+    { id: 11, name: 'Jack & Mike Burger', district: '大同區', regionId: 'datong', rating: 4.4, type: 'classic', icon: '🍔', desc: '老字號社區漢堡店，老闆親切味道實在。', tag: '老字號', address: '台北市大同區承德路' },
+    { id: 12, name: 'Burger Joint 7分so', district: '中山區', regionId: 'zhongshan', rating: 4.6, type: 'cheese', icon: '🧀', desc: '可以選擇 7 分熟的特色牛肉漢堡，肉汁鮮美。', tag: '人氣No.1', address: '台北市中山區雙城街' },
+    { id: 13, name: '漢堡狂想曲', district: '萬華區', regionId: 'wanhua', rating: 4.2, type: 'chicken', icon: '🍗', desc: '創意雞肉漢堡，每月推出限定口味。', tag: '創意', address: '台北市萬華區西門町' },
+    { id: 14, name: 'Veggie Bun 蔬食堡', district: '文山區', regionId: 'wenshan', rating: 4.3, type: 'veggie', icon: '🥬', desc: '木柵在地素食漢堡店，使用有機食材。', tag: '有機', address: '台北市文山區木柵路' },
+    { id: 15, name: 'Morning Mood', district: '南港區', regionId: 'nangang', rating: 4.5, type: 'brunch', icon: '🥯', desc: '南港人氣早午餐，咖啡與漢堡的完美組合。', tag: '咖啡好喝', address: '台北市南港區市民大道' },
+  ];
+
+  const reviews = [
+    { author: '小明', initial: '明', restaurantId: 1, rating: 5, text: '漢堡超 juicy，份量也很大！紐約客牛排堡是我的最愛，每次來都點這個。', date: '2026-04-12', color: '#FFCB05' },
+    { author: 'Lisa W.', initial: 'L', restaurantId: 3, rating: 5, text: '起司控的天堂！四種起司爆漿瞬間讓我哭出來，配薯條超完美。', date: '2026-04-08', color: '#E84F2A' },
+    { author: '阿宏', initial: '宏', restaurantId: 2, rating: 4, text: '早午餐選擇多，氣氛輕鬆適合朋友聚會，記得提前訂位喔！', date: '2026-04-05', color: '#5DA9DC' },
+    { author: 'Sandy', initial: 'S', restaurantId: 6, rating: 5, text: 'KGB 的奇異果漢堡讓我大開眼界！從沒想過水果可以這麼搭。', date: '2026-04-02', color: '#7BC74D' },
+    { author: '小美', initial: '美', restaurantId: 12, rating: 5, text: '7 分熟的牛肉漢堡完全顛覆我的想像，肉汁滿溢真的太香！', date: '2026-03-28', color: '#4ECDC4' },
+    { author: 'David', initial: 'D', restaurantId: 10, rating: 4, text: '素食漢堡也能這麼好吃！植物肉做得很有口感，吃完不會有罪惡感。', date: '2026-03-22', color: '#FFCB05' },
+    { author: '威廉', initial: 'W', restaurantId: 9, rating: 5, text: '雞腿漢堡超酥脆！外酥內嫩，搭配特製醬料真的會上癮。', date: '2026-03-18', color: '#E84F2A' },
+    { author: '小芳', initial: '芳', restaurantId: 4, rating: 4, text: 'CP 值超高，學生族群福音！平價但味道完全不馬虎。', date: '2026-03-15', color: '#5DA9DC' },
+  ];
+
+  // ====== STATE ======
+  let activeRegion = 'all';
+  let activeType = 'all';
+  let favorites = new Set();
+
+  // ====== INIT ======
+  function init() {
+    renderRegions();
+    renderTypes();
+    updateAll();
+  }
+
+  function renderRegions() {
+    const grid = document.getElementById('regionGrid');
+    grid.innerHTML = regions.map(r => `
+      <button class="region-pill ${r.id === activeRegion ? 'active' : ''}"
+              data-id="${r.id}" onclick="selectRegion('${r.id}')">${r.name}</button>
+    `).join('');
+  }
+
+  function renderTypes() {
+    const grid = document.getElementById('typeGrid');
+    grid.innerHTML = burgerTypes.map(t => `
+      <button class="type-card ${t.id === activeType ? 'active' : ''}"
+              onclick="selectType('${t.id}')">
+        <div class="type-icon">${t.icon}</div>
+        <div class="type-name">${t.name}</div>
+      </button>
+    `).join('');
+  }
+
+  function selectRegion(id) {
+    activeRegion = id;
+    renderRegions();
+    updateAll();
+    document.getElementById('map').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function selectType(id) {
+    activeType = id;
+    renderTypes();
+    updateAll();
+  }
+
+  function resetFilters() {
+    activeRegion = 'all';
+    activeType = 'all';
+    renderRegions();
+    renderTypes();
+    updateAll();
+  }
+
+  function getFiltered() {
+    return restaurants.filter(r => {
+      const regionOk = activeRegion === 'all' || r.regionId === activeRegion;
+      let typeOk = true;
+      if (activeType === 'popular') typeOk = r.rating >= 4.5;
+      else if (activeType !== 'all') typeOk = r.type === activeType;
+      return regionOk && typeOk;
+    });
+  }
+
+  function updateAll() {
+    updateMap();
+    updateFilters();
+    updateRestaurants();
+    updateReviews();
+  }
+
+  function updateMap() {
+    const region = regions.find(r => r.id === activeRegion);
+    const type = burgerTypes.find(t => t.id === activeType);
+    let query = `${region.query} 漢堡`;
+    if (activeType === 'cheese') query += ' 起司';
+    else if (activeType === 'chicken') query += ' 雞肉';
+    else if (activeType === 'veggie') query += ' 素食';
+    else if (activeType === 'brunch') query += ' 早午餐';
+
+    const url = `https://maps.google.com/maps?q=${encodeURIComponent(query)}&t=&z=${activeRegion === 'all' ? 12 : 14}&ie=UTF8&iwloc=&output=embed&hl=zh-TW`;
+    document.getElementById('mapFrame').src = url;
+  }
+
+  function updateFilters() {
+    const region = regions.find(r => r.id === activeRegion);
+    const type = burgerTypes.find(t => t.id === activeType);
+    const tags = [];
+    tags.push(`<span class="filter-tag">📍 ${region.name}${activeRegion !== 'all' ? '<span class="x" onclick="selectRegion(\'all\')">✕</span>' : ''}</span>`);
+    tags.push(`<span class="filter-tag tag-red">${type.icon} ${type.name}${activeType !== 'all' ? '<span class="x" onclick="selectType(\'all\')">✕</span>' : ''}</span>`);
+    document.getElementById('currentFilters').innerHTML = tags.join('');
+    document.getElementById('resultCount').textContent = getFiltered().length;
+  }
+
+  function updateRestaurants() {
+    const filtered = getFiltered();
+    const grid = document.getElementById('restaurantsGrid');
+    if (filtered.length === 0) {
+      grid.innerHTML = `
+        <div class="empty-state">
+          <h3>😅 找不到符合的店家</h3>
+          <p>試試其他地區或漢堡類型吧！</p>
+          <button class="btn btn-red" onclick="resetFilters()">🔄 重設篩選</button>
+        </div>`;
+      return;
+    }
+    grid.innerHTML = filtered.map(r => `
+      <article class="restaurant-card">
+        <div class="card-img">
+          <span class="card-tag">${r.tag}</span>
+          <span class="card-fav ${favorites.has(r.id) ? 'fav-active' : ''}" onclick="event.stopPropagation(); toggleFav(${r.id})">${favorites.has(r.id) ? '❤️' : '🤍'}</span>
+          <span class="burger-emoji">${r.icon}</span>
+        </div>
+        <div class="card-body">
+          <h3 class="card-name">${r.name}</h3>
+          <div class="card-meta">
+            <span class="card-district">📍 ${r.district}</span>
+            <span class="card-rating"><span class="star">★</span> ${r.rating}</span>
+          </div>
+          <p class="card-desc">${r.desc}</p>
+          <div class="card-action">
+            <button class="card-btn card-btn-primary" onclick="openOnMap(${r.id})">🗺️ 在地圖查看</button>
+            <button class="card-btn" onclick="viewReviews(${r.id})">💬 評論</button>
+          </div>
+        </div>
+      </article>
+    `).join('');
+  }
+
+  function updateReviews() {
+    const filtered = getFiltered();
+    const filteredIds = new Set(filtered.map(r => r.id));
+    let displayReviews = reviews.filter(rv => filteredIds.has(rv.restaurantId));
+    if (displayReviews.length === 0) displayReviews = reviews.slice(0, 6);
+    displayReviews = displayReviews.slice(0, 8);
+
+    const track = document.getElementById('reviewsTrack');
+    track.innerHTML = displayReviews.map(rv => {
+      const restaurant = restaurants.find(r => r.id === rv.restaurantId);
+      const stars = '★'.repeat(rv.rating) + '☆'.repeat(5 - rv.rating);
+      return `
+        <div class="review-card">
+          <div class="review-header">
+            <div class="review-avatar" style="background:${rv.color}">${rv.initial}</div>
+            <div>
+              <div class="review-author">${rv.author}</div>
+              <div class="review-restaurant">📍 ${restaurant ? restaurant.name : ''}</div>
+            </div>
+          </div>
+          <div class="review-stars">${stars}</div>
+          <p class="review-text">${rv.text}</p>
+          <div class="review-date">${rv.date}</div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function toggleFav(id) {
+    if (favorites.has(id)) favorites.delete(id);
+    else favorites.add(id);
+    updateRestaurants();
+  }
+
+  function openOnMap(id) {
+    const r = restaurants.find(x => x.id === id);
+    if (!r) return;
+    const url = `https://maps.google.com/maps?q=${encodeURIComponent(r.address + ' ' + r.name)}&t=&z=16&ie=UTF8&iwloc=&output=embed&hl=zh-TW`;
+    document.getElementById('mapFrame').src = url;
+    document.getElementById('map').scrollIntoView({ behavior: 'smooth' });
+  }
+
+  function viewReviews(id) {
+    document.getElementById('reviews').scrollIntoView({ behavior: 'smooth' });
+  }
+
+  // Search
+  document.getElementById('searchInput').addEventListener('input', e => {
+    const q = e.target.value.trim().toLowerCase();
+    const grid = document.getElementById('restaurantsGrid');
+    if (!q) { updateRestaurants(); return; }
+    const filtered = restaurants.filter(r =>
+      r.name.toLowerCase().includes(q) ||
+      r.district.includes(q) ||
+      r.desc.toLowerCase().includes(q)
+    );
+    if (filtered.length === 0) {
+      grid.innerHTML = `
+        <div class="empty-state">
+          <h3>🔍 找不到 "${e.target.value}"</h3>
+          <p>換個關鍵字試試看！</p>
+        </div>`;
+      return;
+    }
+    grid.innerHTML = filtered.map(r => `
+      <article class="restaurant-card">
+        <div class="card-img">
+          <span class="card-tag">${r.tag}</span>
+          <span class="card-fav ${favorites.has(r.id) ? 'fav-active' : ''}" onclick="event.stopPropagation(); toggleFav(${r.id})">${favorites.has(r.id) ? '❤️' : '🤍'}</span>
+          <span class="burger-emoji">${r.icon}</span>
+        </div>
+        <div class="card-body">
+          <h3 class="card-name">${r.name}</h3>
+          <div class="card-meta">
+            <span class="card-district">📍 ${r.district}</span>
+            <span class="card-rating"><span class="star">★</span> ${r.rating}</span>
+          </div>
+          <p class="card-desc">${r.desc}</p>
+          <div class="card-action">
+            <button class="card-btn card-btn-primary" onclick="openOnMap(${r.id})">🗺️ 在地圖查看</button>
+            <button class="card-btn" onclick="viewReviews(${r.id})">💬 評論</button>
+          </div>
+        </div>
+      </article>
+    `).join('');
+  });
+
+  // Smooth nav
+  document.querySelectorAll('nav a').forEach(a => {
+    a.addEventListener('click', () => {
+      document.querySelectorAll('nav a').forEach(x => x.classList.remove('active'));
+      a.classList.add('active');
+    });
+  });
+
+  init();
+</script>
+
+</body>
+</html>
